@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="001-create-cart-items-table" author="tuiop">
+        <createTable tableName="cart_items">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_cart_items"/>
+            </column>
+            <column name="cart_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="002-create-carts-table" author="tuiop">
+        <createTable tableName="carts">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_carts"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="003-create-categories-table" author="tuiop">
+        <createTable tableName="categories">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_categories"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(1000)"/>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="004-create-merchants-table" author="tuiop">
+        <createTable tableName="merchants">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_merchants"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(2000)"/>
+            <column name="verified" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="005-create-order-items-table" author="tuiop">
+        <createTable tableName="order_items">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_items"/>
+            </column>
+            <column name="order_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID"/>
+            <column name="merchant_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_name_snapshot" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="merchant_name_snapshot" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_snapshot_cents" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price_snapshot_cents" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="006-create-orders-table" author="tuiop">
+        <createTable tableName="orders">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orders"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price_cents" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="007-create-product-images-table" author="tuiop">
+        <createTable tableName="product_images">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_product_images"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_type" type="VARCHAR(255)"/>
+            <column name="position_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="008-create-products-table" author="tuiop">
+        <createTable tableName="products">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_products"/>
+            </column>
+            <column name="merchant_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="UUID">
+            <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(5000)"/>
+            <column name="price_cents" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stock_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="009-create-users-table" author="tuiop">
+        <createTable tableName="users">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="010-add-unique-constraint-carts-user-id" author="tuiop">
+        <addUniqueConstraint columnNames="user_id" constraintName="uc_carts_user" tableName="carts"/>
+    </changeSet>
+    <changeSet id="011-add-unique-constraint-categories-name" author="tuiop">
+        <addUniqueConstraint columnNames="name" constraintName="uc_categories_name" tableName="categories"/>
+    </changeSet>
+    <changeSet id="012-add-unique-constraint-merchants-shop-name" author="tuiop">
+        <addUniqueConstraint columnNames="shop_name" constraintName="uc_merchants_shop_name" tableName="merchants"/>
+    </changeSet>
+    <changeSet id="013-add-unique-constraint-merchants-user-id" author="tuiop">
+        <addUniqueConstraint columnNames="user_id" constraintName="uc_merchants_user" tableName="merchants"/>
+    </changeSet>
+    <changeSet id="014-add-unique-constraint-users-email" author="tuiop">
+        <addUniqueConstraint columnNames="email" constraintName="uc_users_email" tableName="users"/>
+    </changeSet>
+    <changeSet id="015-add-unique-constraint-cart-items-cart-id-product-id" author="tuiop">
+        <addUniqueConstraint columnNames="cart_id, product_id" constraintName="uk_cart_items_cart_product"
+                             tableName="cart_items"/>
+    </changeSet>
+    <changeSet id="016-add-index-categories-name" author="tuiop">
+        <createIndex indexName="idx_categories_name" tableName="categories">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="017-add-index-merchants-shop-name" author="tuiop">
+        <createIndex indexName="idx_merchants_shop_name" tableName="merchants">
+            <column name="shop_name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="018-add-index-orders-created-at" author="tuiop">
+        <createIndex indexName="idx_orders_created_at" tableName="orders">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="019-add-index-orders-status" author="tuiop">
+        <createIndex indexName="idx_orders_status" tableName="orders">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="020-add-index-products-name" author="tuiop">
+        <createIndex indexName="idx_products_name" tableName="products">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="021-add-carts-users-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="carts" constraintName="FK_CARTS_ON_USER"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+
+        <createIndex indexName="idx_carts_user_id" tableName="carts">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="022-add-carts-cart-items-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="cart_id" baseTableName="cart_items"
+                                 constraintName="FK_CART_ITEMS_ON_CART" referencedColumnNames="id"
+                                 referencedTableName="carts"/>
+
+        <createIndex indexName="idx_cart_items_cart_id" tableName="cart_items">
+            <column name="cart_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="023-add-cart-items-products-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="cart_items"
+                                 constraintName="FK_CART_ITEMS_ON_PRODUCT" referencedColumnNames="id"
+                                 referencedTableName="products"/>
+
+        <createIndex indexName="idx_cart_items_product_id" tableName="cart_items">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="024-add-users-merchants-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="merchants"
+                                 constraintName="FK_MERCHANTS_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+
+        <createIndex indexName="idx_merchants_user_id" tableName="merchants">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="025-add-orders-users-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="orders" constraintName="FK_ORDERS_ON_USER"
+                                 referencedColumnNames="id" referencedTableName="users"/>
+
+        <createIndex indexName="idx_orders_user_id" tableName="orders">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="026-add-order_items-merchants-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="merchant_id" baseTableName="order_items"
+                                 constraintName="FK_ORDER_ITEMS_ON_MERCHANT" referencedColumnNames="id"
+                                 referencedTableName="merchants"/>
+
+        <createIndex indexName="idx_order_items_merchant_id" tableName="order_items">
+            <column name="merchant_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="027-add-orders-order-items-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_items"
+                                 constraintName="FK_ORDER_ITEMS_ON_ORDER" referencedColumnNames="id"
+                                 referencedTableName="orders"/>
+
+        <createIndex indexName="idx_order_items_order_id" tableName="order_items">
+            <column name="order_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="028-add-order-items-products-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="order_items"
+                                 constraintName="FK_ORDER_ITEMS_ON_PRODUCT" referencedColumnNames="id"
+                                 referencedTableName="products"/>
+
+        <createIndex indexName="idx_order_items_product_id" tableName="order_items">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="029-add-products-categories-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="products"
+                                 constraintName="FK_PRODUCTS_ON_CATEGORY" referencedColumnNames="id"
+                                 referencedTableName="categories"/>
+
+        <createIndex indexName="idx_products_category_id" tableName="products">
+            <column name="category_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="030-add-merchants-products-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="merchant_id" baseTableName="products"
+                                 constraintName="FK_PRODUCTS_ON_MERCHANT" referencedColumnNames="id"
+                                 referencedTableName="merchants"/>
+
+        <createIndex indexName="idx_products_merchant_id" tableName="products">
+            <column name="merchant_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="031-add-product-images-products-relation" author="tuiop">
+        <addForeignKeyConstraint baseColumnNames="product_id" baseTableName="product_images"
+                                 constraintName="FK_PRODUCT_IMAGES_ON_PRODUCT" referencedColumnNames="id"
+                                 referencedTableName="products"/>
+
+        <createIndex indexName="idx_product_images_product_id" tableName="product_images">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
