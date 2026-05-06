@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/merchant/products")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('MERCHANT')")
 public class MerchantProductController {
 
     private final ProductService productService;
@@ -28,7 +30,7 @@ public class MerchantProductController {
             @AuthenticationPrincipal CustomUserDetails principal,
             @Valid @RequestBody CreateProductRequest request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(principal, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createMyProduct(principal, request));
     }
 
     @GetMapping
@@ -53,7 +55,7 @@ public class MerchantProductController {
             @PathVariable UUID productId,
             @Valid @RequestBody UpdateProductRequest request
     ) {
-        return ResponseEntity.ok(productService.updateProduct(principal, productId, request));
+        return ResponseEntity.ok(productService.updateMyProduct(principal, productId, request));
     }
 
     @DeleteMapping("/{productId}")
@@ -61,6 +63,6 @@ public class MerchantProductController {
             @AuthenticationPrincipal CustomUserDetails principal,
             @PathVariable UUID productId
     ) {
-        productService.deleteProduct(principal, productId);
+        productService.deleteMyProduct(principal, productId);
     }
 }

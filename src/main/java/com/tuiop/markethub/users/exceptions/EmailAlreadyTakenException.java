@@ -1,4 +1,6 @@
-package com.tuiop.markethub.common.exceptions;
+package com.tuiop.markethub.users.exceptions;
+
+import com.tuiop.markethub.common.exceptions.ConflictException;
 
 public class EmailAlreadyTakenException extends ConflictException {
     public EmailAlreadyTakenException(String email) {

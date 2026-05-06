@@ -1,7 +1,9 @@
 package com.tuiop.markethub.merchants.exceptions;
 
-public class ShopNameAlreadyTakenException extends RuntimeException {
-  public ShopNameAlreadyTakenException(String message) {
-    super(message);
-  }
+import com.tuiop.markethub.common.exceptions.ConflictException;
+
+public class ShopNameAlreadyTakenException extends ConflictException {
+    public ShopNameAlreadyTakenException(String shopName) {
+        super("Shop name: " + shopName + " is already taken");
+    }
 }

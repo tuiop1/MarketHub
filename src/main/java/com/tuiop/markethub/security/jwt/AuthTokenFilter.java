@@ -1,8 +1,7 @@
-package com.tuiop.markethub.security.auth;
+package com.tuiop.markethub.security.jwt;
 
 
 import com.tuiop.markethub.security.user.CustomUserDetailsService;
-import com.tuiop.markethub.security.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

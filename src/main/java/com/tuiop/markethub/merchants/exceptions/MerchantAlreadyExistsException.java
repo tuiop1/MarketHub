@@ -1,7 +1,9 @@
 package com.tuiop.markethub.merchants.exceptions;
 
-public class MerchantAlreadyExistsException extends RuntimeException {
-  public MerchantAlreadyExistsException(String message) {
-    super(message);
-  }
+import com.tuiop.markethub.common.exceptions.ConflictException;
+
+public class MerchantAlreadyExistsException extends ConflictException {
+    public MerchantAlreadyExistsException() {
+        super("User is already merchant");
+    }
 }

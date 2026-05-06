@@ -1,4 +1,4 @@
-package com.tuiop.markethub.security.util;
+package com.tuiop.markethub.security.jwt;
 
 import com.tuiop.markethub.users.User;
 import io.jsonwebtoken.*;
@@ -23,6 +23,10 @@ public class JwtUtil {
     private SecretKey key;
     @PostConstruct
     public void init() {
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException("JWT secret must be at least 32 bytes for HS256");
+        }
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
     public String generateToken(User user) {

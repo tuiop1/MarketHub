@@ -1,7 +1,9 @@
 package com.tuiop.markethub.categories.exceptions;
 
-public class CategoryAlreadyExistsException extends RuntimeException {
-  public CategoryAlreadyExistsException(String message) {
-    super(message);
-  }
+import com.tuiop.markethub.common.exceptions.ConflictException;
+
+public class CategoryAlreadyExistsException extends ConflictException {
+    public CategoryAlreadyExistsException(String name) {
+        super("Category with the name: " + name + " already exists");
+    }
 }

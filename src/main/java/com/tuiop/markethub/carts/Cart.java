@@ -1,6 +1,7 @@
 package com.tuiop.markethub.carts;
 
 
+import com.tuiop.markethub.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,4 +1,19 @@
 package com.tuiop.markethub.products.dto;
 
-public class ProductResponse {
+
+import java.time.Instant;
+import java.util.UUID;
+
+public record ProductResponse(
+        UUID id,
+        UUID merchantId,
+        UUID categoryId,
+        String name,
+        String description,
+        Long priceCents,
+        Integer stockQuantity,
+        Boolean active,
+        Instant createdAt,
+        Instant updatedAt
+) {
 }
