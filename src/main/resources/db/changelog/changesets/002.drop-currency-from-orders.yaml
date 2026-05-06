@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002.drop-currency-from-orders.yaml
+      author: tuiop
+      changes:
+        - dropColumn:
+            tableName: orders
+            columnName: currency

@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      timeout: 2s
+      ssl:
+        enabled: ${SPRING_REDIS_SSL_ENABLED:false}
+        bundle: ${SPRING_REDIS_SSL_BUNDLE:}
+
+
+  cache:
+    type: redis
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
+app:
+  admin:
+    email: ${APP_ADMIN_EMAIL}
+    password: ${APP_ADMIN_PASSWORD}
+    first-name: admin
+    last-name: admin
+    birth-date: 1970-01-01
+
+  rate-limit:
+    enabled: true
+    request-limit: ${REQUEST_LIMIT}
+    window-size: ${WINDOW_SIZE}
