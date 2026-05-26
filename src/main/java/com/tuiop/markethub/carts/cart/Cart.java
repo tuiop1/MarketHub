@@ -1,11 +1,14 @@
-package com.tuiop.markethub.carts;
+package com.tuiop.markethub.carts.cart;
 
 
+import com.tuiop.markethub.carts.cart.item.CartItem;
 import com.tuiop.markethub.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -34,6 +37,11 @@ public class Cart {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt desc")
+    @Builder.Default
+    private List<CartItem> cartItems = new ArrayList<>();
 
     @PrePersist
     protected void prePersist() {
