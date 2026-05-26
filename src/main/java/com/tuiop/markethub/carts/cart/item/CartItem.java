@@ -1,6 +1,7 @@
-package com.tuiop.markethub.carts;
+package com.tuiop.markethub.carts.cart.item;
 
 
+import com.tuiop.markethub.carts.cart.Cart;
 import com.tuiop.markethub.products.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -66,6 +67,13 @@ public class CartItem {
     @PreUpdate
     protected void preUpdate() {
         updatedAt = Instant.now();
+    }
+
+    public void increaseQuantity(int quantity){
+
+        if(quantity <= 0) throw new IllegalArgumentException("Quantity must be positive");
+
+            this.quantity += quantity;
     }
 
 

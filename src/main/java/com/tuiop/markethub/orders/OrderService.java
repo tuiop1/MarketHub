@@ -1,6 +1,10 @@
 package com.tuiop.markethub.orders;
 
 
+import com.tuiop.markethub.carts.cart.Cart;
+import com.tuiop.markethub.carts.cart.item.CartItem;
+import com.tuiop.markethub.carts.cart.CartRepository;
+import com.tuiop.markethub.carts.exceptions.EmptyCartException;
 import com.tuiop.markethub.common.exceptions.ResourceNotFoundException;
 import com.tuiop.markethub.orders.dto.OrderResponse;
 import com.tuiop.markethub.orders.dto.PurchaseItemRequest;
@@ -39,6 +43,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
+    private final CartRepository cartRepository;
 
     @Transactional
     @CacheEvict(value = "public-product", allEntries = true)
@@ -46,10 +51,42 @@ public class OrderService {
             CustomUserDetails principal,
             PurchaseRequest request
     ) {
+       return orderMapper.toOrderResponse(createOrder(principal, mergeQuantitiesByProductId(request.items())));
+
+    }
+    @Transactional
+    @CacheEvict(value = "public-product", allEntries = true)
+    public OrderResponse purchaseMyCart(
+            CustomUserDetails principal
+    ) {
+        UUID userId = principal.getUserId();
+
+        Cart myCart = cartRepository.findDetailedByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id",userId));
+
+            if(myCart.getCartItems().isEmpty()){
+                throw new EmptyCartException();
+            }
+
+        Map<UUID, Integer> quantitiesByProductId = myCart.getCartItems().stream().collect(Collectors.toMap(
+                userItem -> userItem.getProduct().getId(),
+                CartItem::getQuantity
+        ));
+
+        Order order = createOrder(principal, quantitiesByProductId);
+
+        myCart.getCartItems().clear();
+
+        return orderMapper.toOrderResponse(order);
+
+    }
+
+    private Order createOrder(
+            CustomUserDetails principal,
+            Map<UUID, Integer> quantitiesByProductId
+    ) {
         User user = userRepository.findById(principal.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException(User.class, principal.getUserId()));
         //merge quantities to avoid duplicated order items
-        Map<UUID, Integer> quantitiesByProductId = mergeQuantitiesByProductId(request.items());
 
         log.info(
                 "Purchase requested: userId={}, uniqueProductCount={}, totalRequestedItems={}",
@@ -97,7 +134,7 @@ public class OrderService {
                 savedOrder.getStatus(),
                 savedOrder.getPaymentStatus()
         );
-        return orderMapper.toOrderResponse(savedOrder);
+        return savedOrder;
 
     }
 
