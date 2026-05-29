@@ -2,9 +2,9 @@ spring:
   application:
     name: MarketHub
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/markethub}
+    username: ${DB_USERNAME:markethub_user}
+    password: ${DB_PASSWORD:markethub_password}
 
   data:
     redis:
@@ -16,6 +16,24 @@ spring:
         enabled: ${SPRING_REDIS_SSL_ENABLED:false}
         bundle: ${SPRING_REDIS_SSL_BUNDLE:}
 
+
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+
+  servlet:
+    multipart:
+      max-request-size: 5MB
+      max-file-size: 5MB
 
 
 
@@ -35,17 +53,32 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 app:
   admin:
-    email: ${APP_ADMIN_EMAIL}
-    password: ${APP_ADMIN_PASSWORD}
+    email: ${APP_ADMIN_EMAIL:admin@markethub.local}
+    password: ${APP_ADMIN_PASSWORD:admin12345}
     first-name: admin
     last-name: admin
     birth-date: 1970-01-01
 
+  product:
+    images:
+      max-file-size-bytes: 5242880
+      max-images-per-product: ${APP_PRODUCT_IMAGES_LIMIT:5}
+      allowed-content-types: ${APP_IMAGES_ALLOWED_TYPES:image/jpeg,image/png,image/webp}
+
+
+
+  minio:
+    endpoint: http://localhost:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: markethub-images
+
+
   rate-limit:
     enabled: true
-    request-limit: ${REQUEST_LIMIT}
-    window-size: ${WINDOW_SIZE}
+    request-limit: ${REQUEST_LIMIT:10}
+    window-size: ${WINDOW_SIZE:1m}

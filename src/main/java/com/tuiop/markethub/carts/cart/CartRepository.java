@@ -22,4 +22,5 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
 
     boolean existsByUserId(UUID id);
 
+    Optional<Cart> findByUserId(UUID userId);
 }

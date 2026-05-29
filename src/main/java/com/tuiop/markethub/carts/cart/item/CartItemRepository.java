@@ -22,4 +22,14 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     """)
     Optional<CartItem> findByCartIdAndProductIdForUpdate(@Param("cartId") UUID cartId, @Param("productId") UUID productId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+    select ci
+    from CartItem ci
+    where ci.cart.id = :cartId
+    and ci.id = :cartItemId
+    """)
+    Optional<CartItem> findByCartIdAndCartItemIdForDelete(@Param("cartId") UUID cartId, @Param("cartItemId") UUID cartItemId);
+
+
 }

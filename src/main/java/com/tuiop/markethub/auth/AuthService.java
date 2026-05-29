@@ -3,6 +3,7 @@ package com.tuiop.markethub.auth;
 import com.tuiop.markethub.auth.dto.AuthResponse;
 import com.tuiop.markethub.auth.dto.LoginRequest;
 import com.tuiop.markethub.auth.dto.RegisterRequest;
+import com.tuiop.markethub.users.AuthProvider;
 import com.tuiop.markethub.users.exceptions.EmailAlreadyTakenException;
 import com.tuiop.markethub.security.jwt.JwtUtil;
 import com.tuiop.markethub.users.User;
@@ -51,6 +52,7 @@ public class AuthService {
                 .lastName(request.lastName())
                 .birthDate(request.birthDate())
                 .email(email)
+                .authProvider(AuthProvider.LOCAL)
                 .passwordHash(encoder.encode(request.password()))
                 .build();
 

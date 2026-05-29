@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 039-add-oauth-fields-to-users
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: auth_provider
+                  type: VARCHAR(255)
+              - column:
+                  name: provider_id
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 040-populate-auth-provider-for-existing-users
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - update:
+            tableName: users
+            columns:
+              - column:
+                  name: auth_provider
+                  value: LOCAL
+            where: auth_provider IS NULL
+
+  - changeSet:
+      id: 041-add-not-null-constraint-users-auth-provider
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addNotNullConstraint:
+            tableName: users
+            columnName: auth_provider
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 042-drop-not-null-constraint-users-first-name
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: first_name
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 043-drop-not-null-constraint-users-last-name
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: last_name
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 044-drop-not-null-constraint-users-birth-date
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: birth_date
+            columnDataType: DATE
+
+  - changeSet:
+      id: 045-drop-not-null-constraint-users-password-hash
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: password_hash
+            columnDataType: VARCHAR(255)

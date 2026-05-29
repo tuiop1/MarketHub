@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 033-add-object-key-to-product-images
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addColumn:
+            tableName: product_images
+            columns:
+              - column:
+                  name: object_key
+                  type: VARCHAR(255)
+
+  - changeSet:
+      id: 034-populate-object-key-from-image-url
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - update:
+            tableName: product_images
+            columns:
+              - column:
+                  name: object_key
+                  valueComputed: image_url
+
+  - changeSet:
+      id: 035-add-not-null-constraint-product-images-object-key
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addNotNullConstraint:
+            tableName: product_images
+            columnName: object_key
+            columnDataType: VARCHAR(255)
+
+  - changeSet:
+      id: 036-drop-file-name-and-image-url-from-product-images
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropColumn:
+            tableName: product_images
+            columnName: file_name
+        - dropColumn:
+            tableName: product_images
+            columnName: image_url

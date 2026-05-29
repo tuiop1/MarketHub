@@ -9,20 +9,25 @@ import com.tuiop.markethub.merchants.MerchantRepository;
 import com.tuiop.markethub.products.dto.CreateProductRequest;
 import com.tuiop.markethub.products.dto.ProductResponse;
 import com.tuiop.markethub.products.dto.UpdateProductRequest;
+import com.tuiop.markethub.products.images.ProductImageRepository;
+import com.tuiop.markethub.products.images.dto.ProductImageResponse;
+import com.tuiop.markethub.products.images.mapper.ProductImageMapper;
 import com.tuiop.markethub.products.mapper.ProductMapper;
 import com.tuiop.markethub.security.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,6 +38,8 @@ public class ProductService {
     private final MerchantRepository merchantRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    private final ProductImageRepository productImageRepository;
+    private final ProductImageMapper productImageMapper;
 
     @PreAuthorize("hasRole('MERCHANT')")
     @Transactional
@@ -64,7 +71,7 @@ public class ProductService {
                 savedProduct.getPriceCents(),
                 savedProduct.getStockQuantity()
         );
-        return productMapper.toResponse(savedProduct);
+        return productMapper.toResponse(savedProduct, List.of());
     }
 
     @PreAuthorize("hasRole('MERCHANT')")
@@ -72,8 +79,7 @@ public class ProductService {
     public Page<ProductResponse> getMyProducts(CustomUserDetails principal, Pageable pageable) {
         Merchant merchant = getMerchantByUserId(principal.getUserId());
 
-        return productRepository.findByMerchantId(merchant.getId(), pageable)
-                .map(productMapper::toResponse);
+        return toResponsePageWithImages(productRepository.findByMerchantId(merchant.getId(), pageable));
     }
 
     @PreAuthorize("hasRole('MERCHANT')")
@@ -81,7 +87,7 @@ public class ProductService {
     public ProductResponse getMyProduct(CustomUserDetails principal, UUID productId) {
         Merchant merchant = getMerchantByUserId(principal.getUserId());
 
-        Product product = productRepository.findByIdAndMerchantId(productId, merchant.getId())
+        Product product = productRepository.findWithImagesByIdAndMerchantId(productId, merchant.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(Product.class, productId));
 
         return productMapper.toResponse(product);
@@ -146,21 +152,41 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> getPublicProducts(Pageable pageable) {
-        return productRepository.findByActiveTrueAndMerchantActiveTrueAndMerchantVerifiedTrueAndCategoryActiveTrue(pageable)
-                .map(productMapper::toResponse);
+        return toResponsePageWithImages(productRepository.findByActiveTrueAndMerchantActiveTrueAndMerchantVerifiedTrueAndCategoryActiveTrue(pageable));
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "public-product", key = "#productId")
     public ProductResponse getPublicProduct(UUID productId) {
-        Product product = productRepository.findById(productId)
-                .filter(Product::getActive)
-                .filter(p -> p.getMerchant().getActive())
-                .filter(p -> p.getMerchant().getVerified())
-                .filter(p -> p.getCategory().getActive())
-                .orElseThrow(() -> new ResourceNotFoundException(Product.class, productId));
+        Product product = productRepository.findPublicByIdWithImages(productId).orElseThrow(() -> new ResourceNotFoundException(Product.class, productId));
+
+
+
 
         return productMapper.toResponse(product);
+    }
+
+    private Page<ProductResponse> toResponsePageWithImages(Page<Product> products) {
+        List<UUID> productIds = products.getContent()
+                .stream()
+                .map(Product::getId)
+                .toList();
+
+        if (productIds.isEmpty()) {
+            return products.map(product -> productMapper.toResponse(product, List.of()));
+        }
+
+        Map<UUID, List<ProductImageResponse>> imagesByProductId = productImageRepository.findByProductIdIn(productIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        image -> image.getProduct().getId(),
+                        Collectors.mapping(productImageMapper::toProductImageResponse, Collectors.toList())
+                ));
+
+        return products.map(product -> productMapper.toResponse(
+                product,
+                imagesByProductId.getOrDefault(product.getId(), List.of())
+        ));
     }
 
     private Merchant getMerchantByUserId(UUID userId) {
