@@ -1,7 +1,10 @@
 package com.tuiop.markethub.products.dto;
 
 
+import com.tuiop.markethub.products.images.dto.ProductImageResponse;
+
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public record ProductResponse(
@@ -14,6 +17,7 @@ public record ProductResponse(
         Integer stockQuantity,
         Boolean active,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        List<ProductImageResponse> images
 ) {
 }

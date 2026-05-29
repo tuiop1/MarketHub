@@ -1,4 +1,4 @@
-package com.tuiop.markethub.common.config;
+package com.tuiop.markethub.common.redis.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cache.CacheManager;

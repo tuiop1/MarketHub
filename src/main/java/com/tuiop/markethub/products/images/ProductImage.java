@@ -1,6 +1,7 @@
-package com.tuiop.markethub.products;
+package com.tuiop.markethub.products.images;
 
 
+import com.tuiop.markethub.products.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,14 +29,14 @@ public class ProductImage {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
-
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
+    @Column(name = "object_key", nullable = false)
+    private String objectKey;
 
     @Column(name = "content_type")
     private String contentType;
+
+    @Column(name = "size_bytes")
+    private Long sizeBytes;
 
     @Column(name = "position_number", nullable = false)
     private Integer position;

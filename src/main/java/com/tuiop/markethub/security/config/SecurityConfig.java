@@ -1,5 +1,6 @@
 package com.tuiop.markethub.security.config;
 
+import com.tuiop.markethub.auth.oauth2.OAuth2LoginSuccessHandler;
 import com.tuiop.markethub.security.jwt.AuthEntryPointJwt;
 import com.tuiop.markethub.security.jwt.AuthTokenFilter;
 import com.tuiop.markethub.security.user.CustomUserDetailsService;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
+    private final OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
@@ -52,11 +54,12 @@ public class SecurityConfig {
                         exceptionHandling.authenticationEntryPoint(unauthorizedHandler)
                 )
                 .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                                 .requestMatchers(
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
@@ -65,10 +68,12 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/merchants").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/product-images/**").permitAll()
                                 .requestMatchers("/api/v1/merchant/products/**").hasRole("MERCHANT")
                                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
-                );
+
+                ).oauth2Login(oauth2 -> oauth2.successHandler(oauth2LoginSuccessHandler));
         http.addFilterBefore(authenticationJwtTokenFilter(jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

@@ -1,6 +1,18 @@
-  databaseChangeLog:
-    - include:
-        file: db/changelog/changesets/001-init-schema.xml
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-init-schema.xml
 
-    - include:
-          file: db/changelog/changesets/002.drop-currency-from-orders.yaml
+  - include:
+      file: db/changelog/changes/002-drop-currency-from-orders.yaml
+
+  - include:
+      file: db/changelog/changes/003-migrate-product-images-to-minio.yaml
+
+  - include:
+      file: db/changelog/changes/004-add-column-size_bytes-to-product_images.yaml
+
+  - include:
+      file: db/changelog/changes/005-change-type-size_bytes-product_images.yaml
+
+  - include:
+      file: db/changelog/changes/006-support-oauth-users.yaml

@@ -42,13 +42,14 @@ public class CartService {
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
 
+
     private Cart createMyCart(CustomUserDetails principal) {
 
         User authenticatedUser = userRepository.findById(principal.getUserId()).orElseThrow(() ->
                 new ResourceNotFoundException(User.class, principal.getUserId()));
 
 
-        if (cartRepository.existsByUserId(principal.getUserId())) {
+        if (cartRepository.existsByUserId(authenticatedUser.getId())) {
             throw new UserAlreadyOwnsCartException();
         }
 
@@ -67,10 +68,8 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public CartResponse getMyCart(CustomUserDetails principal) {
-        User authenticatedUser = userRepository.findById(principal.getUserId()).orElseThrow(() ->
-                new ResourceNotFoundException(User.class, principal.getUserId()));
 
-        Cart myCart = cartRepository.findDetailedByUserId(authenticatedUser.getId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", authenticatedUser.getId()));
+        Cart myCart = cartRepository.findDetailedByUserId(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", principal.getUserId()));
 
         return cartMapper.toCartResponse(myCart);
     }
@@ -83,13 +82,20 @@ public class CartService {
         return cartItemMapper.toCartItemResponse(addProductToCart(request.productId(), request.quantity(), principal));
     }
 
+    @Transactional
+    public void removeCartItemFromMyCart(UUID id, CustomUserDetails principal) {
+
+
+        removeCartItemFromCart(id, principal);
+
+    }
+
+
 
     // private method not for controller
     private CartItem addProductToCart(UUID productId, Integer quantity, CustomUserDetails principal) {
 
-
-        User authenticatedUser = userRepository.findById(principal.getUserId()).orElseThrow(() ->
-                new ResourceNotFoundException(User.class, principal.getUserId()));
+        UUID userId = principal.getUserId();
 
 
         Product product = productRepository.findWithMerchantAndCategoryById(productId).orElseThrow(() -> new ResourceNotFoundException(Product.class, productId));
@@ -117,7 +123,7 @@ public class CartService {
         if (quantity > product.getStockQuantity()) {
             throw new InsufficientStockException(product.getName(), quantity, product.getStockQuantity());
         }
-        Cart myCart = cartRepository.findDetailedByUserId(authenticatedUser.getId()).orElseGet(() -> createMyCart(principal));
+        Cart myCart = cartRepository.findDetailedByUserId(userId).orElseGet(() -> createMyCart(principal));
 
         Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductIdForUpdate(myCart.getId(), productId);
 
@@ -149,6 +155,26 @@ public class CartService {
         log.info("Added cart item id={} to the cart id={}", savedCartItem.getId(), myCart.getId());
 
         return cartItem;
+    }
+
+
+    private void removeCartItemFromCart(UUID cartItemId, CustomUserDetails principal) {
+
+        UUID userId = principal.getUserId();
+
+
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "userId", userId));
+
+
+        CartItem existingItem = cartItemRepository.findByCartIdAndCartItemIdForDelete(cart.getId(), cartItemId).orElseThrow(() -> new ResourceNotFoundException(CartItem.class, cartItemId));
+
+
+        // item will be implicitly deleted from the cart list as well
+        cartItemRepository.delete(existingItem);
+
+        log.info("Deleted cart item id={} from the cart id={}", existingItem.getId(), cart.getId());
+
+
     }
 
 

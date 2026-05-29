@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 038-change-type-size_bytes-product_images
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropColumn:
+            tableName: product_images
+            columnName: size_bytes
+        - addColumn:
+            columns:
+              - column:
+                  name: size_bytes
+                  type: BIGINT
+            tableName: product_images

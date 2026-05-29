@@ -4,10 +4,13 @@ package com.tuiop.markethub.products;
 import com.tuiop.markethub.categories.Category;
 import com.tuiop.markethub.merchants.Merchant;
 import com.tuiop.markethub.products.exceptions.InsufficientStockException;
+import com.tuiop.markethub.products.images.ProductImage;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -51,6 +54,16 @@ public class Product {
 
     @Column(nullable = false)
     private Boolean active;
+
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("position ASC ")
+    @Builder.Default
+    private List<ProductImage> images = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

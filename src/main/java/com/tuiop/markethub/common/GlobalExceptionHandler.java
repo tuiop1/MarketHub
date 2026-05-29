@@ -2,6 +2,10 @@ package com.tuiop.markethub.common;
 
 import com.tuiop.markethub.common.exceptions.ConflictException;
 import com.tuiop.markethub.common.exceptions.ResourceNotFoundException;
+import com.tuiop.markethub.common.storage.object.exceptions.EmptyFileException;
+import com.tuiop.markethub.common.storage.object.exceptions.FileTooLargeException;
+import com.tuiop.markethub.common.storage.object.exceptions.StorageException;
+import com.tuiop.markethub.common.storage.object.exceptions.UnsupportedContentTypeException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,13 +72,54 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
-    //user,merchant
+    @ExceptionHandler(EmptyFileException.class)
+    public ResponseEntity<ApiError> handleEmptyFile(
+            EmptyFileException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(FileTooLargeException.class)
+    public ResponseEntity<ApiError> handleFileTooLarge(
+            FileTooLargeException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.PAYLOAD_TOO_LARGE, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnsupportedContentTypeException.class)
+    public ResponseEntity<ApiError> handleUnsupportedContentType(
+            UnsupportedContentTypeException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, exception.getMessage(), request);
+    }
+
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ApiError> handleStorageException(
+            StorageException exception,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiError> handleConflictException(
             ConflictException exception,
             HttpServletRequest request
     ) {
         return buildError(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleException(
+            Exception exception,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request);
     }
 
     private ResponseEntity<ApiError> buildError(

@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:markethub}
+    username: ${DB_USERNAME:markethub_user}
+    password: ${DB_PASSWORD:markethub_password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,9 +20,9 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:redis_password}
       timeout: 2s
       ssl:
         enabled: ${SPRING_REDIS_SSL_ENABLED:false}
@@ -33,18 +33,30 @@ spring:
     type: redis
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:dev-only-markethub-jwt-secret-key-32bytes-minimum}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 app:
   admin:
-    email: ${APP_ADMIN_EMAIL}
-    password: ${APP_ADMIN_PASSWORD}
+    email: ${APP_ADMIN_EMAIL:admin@markethub.local}
+    password: ${APP_ADMIN_PASSWORD:admin12345}
     first-name: admin
     last-name: admin
     birth-date: 1970-01-01
 
+  product:
+    images:
+      max-file-size-bytes: ${APP_PRODUCT_IMAGES_MAX_FILE_SIZE_BYTES:5242880}
+      max-images-per-product: ${APP_PRODUCT_IMAGES_LIMIT:5}
+      allowed-content-types: ${APP_IMAGES_ALLOWED_TYPES:image/jpeg,image/png,image/webp}
+
+  minio:
+    endpoint: ${APP_MINIO_ENDPOINT:http://minio:9000}
+    access-key: ${APP_MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${APP_MINIO_SECRET_KEY:minioadmin}
+    bucket: ${APP_MINIO_BUCKET:markethub-images}
+
   rate-limit:
     enabled: true
-    request-limit: ${REQUEST_LIMIT}
-    window-size: ${WINDOW_SIZE}
+    request-limit: ${REQUEST_LIMIT:10}
+    window-size: ${WINDOW_SIZE:1m}

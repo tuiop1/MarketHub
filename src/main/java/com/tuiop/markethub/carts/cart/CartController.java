@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RequestMapping("/api/v1/cart")
 @RestController
 @RequiredArgsConstructor
@@ -29,12 +31,21 @@ public class CartController {
     }
 
 
-    @PostMapping
+    @PostMapping("/items")
     public ResponseEntity<CartItemResponse> addItemToCart(
             @AuthenticationPrincipal CustomUserDetails principal,
             @Valid @RequestBody AddToCartRequest addToCartRequest
             ) {
         return ResponseEntity.status(HttpStatus.OK).body(cartService.addProductToMyCart(addToCartRequest, principal));
+    }
+
+    @DeleteMapping("/items/{id}")
+    public ResponseEntity<Void> deleteItemFromCart(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable UUID id
+            ) {
+        cartService.removeCartItemFromMyCart(id, principal);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/purchase")

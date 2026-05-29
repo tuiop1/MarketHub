@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 032-drop-currency-from-orders
+      author: tuiop
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - dropColumn:
+            tableName: orders
+            columnName: currency
