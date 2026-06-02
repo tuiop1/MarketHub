@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     """)
     Optional<Product> findPublicByIdWithImages(@Param("productId") UUID productId);
 
-
+    @EntityGraph(attributePaths = {"merchant", "category"})
     Page<Product> findByMerchantId(UUID merchantId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"merchant", "category", "images"})
@@ -57,6 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     """)
     Optional<Product> findByIdAndUserIdForUpdate(UUID productId, UUID userId);
 
+    @EntityGraph(attributePaths = {"merchant", "category"})
     Page<Product> findByActiveTrueAndMerchantActiveTrueAndMerchantVerifiedTrueAndCategoryActiveTrue(Pageable pageable);
 
 

@@ -31,7 +31,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 UserDetails userDetails = jwtUtils.getUserIdFromValidToken(jwt)
                         .map(userDetailsService::loadUserById)
                         .orElse(null);
-                if (userDetails == null) {
+                if (userDetails == null || !userDetails.isEnabled()) {
                     filterChain.doFilter(request, response);
                     return;
                 }

@@ -196,7 +196,7 @@ public class ProductService {
 
     private Category getCategory(UUID categoryId) {
 
-        return categoryRepository.findById(categoryId)
+        return categoryRepository.findByIdAndActiveTrue(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException(Category.class, categoryId));
     }
 

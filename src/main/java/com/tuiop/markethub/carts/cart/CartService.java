@@ -69,7 +69,7 @@ public class CartService {
     @Transactional(readOnly = true)
     public CartResponse getMyCart(CustomUserDetails principal) {
 
-        Cart myCart = cartRepository.findDetailedByUserId(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", principal.getUserId()));
+        Cart myCart = cartRepository.findDetailedByUserIdForUpdate(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", principal.getUserId()));
 
         return cartMapper.toCartResponse(myCart);
     }
@@ -123,7 +123,7 @@ public class CartService {
         if (quantity > product.getStockQuantity()) {
             throw new InsufficientStockException(product.getName(), quantity, product.getStockQuantity());
         }
-        Cart myCart = cartRepository.findDetailedByUserId(userId).orElseGet(() -> createMyCart(principal));
+        Cart myCart = cartRepository.findDetailedByUserIdForUpdate(userId).orElseGet(() -> createMyCart(principal));
 
         Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductIdForUpdate(myCart.getId(), productId);
 

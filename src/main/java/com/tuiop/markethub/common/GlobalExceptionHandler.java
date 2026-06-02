@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
             Exception exception,
             HttpServletRequest request
     ) {
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), request);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", request);
     }
 
     private ResponseEntity<ApiError> buildError(

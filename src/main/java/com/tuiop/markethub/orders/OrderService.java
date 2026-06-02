@@ -61,7 +61,7 @@ public class OrderService {
     ) {
         UUID userId = principal.getUserId();
 
-        Cart myCart = cartRepository.findDetailedByUserId(userId).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id",userId));
+        Cart myCart = cartRepository.findDetailedByUserIdForUpdate(userId).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id",userId));
 
             if(myCart.getCartItems().isEmpty()){
                 throw new EmptyCartException();
@@ -186,7 +186,7 @@ public class OrderService {
             CustomUserDetails principal
     ) {
         if (product.getMerchant().getUser().getId().equals(principal.getUserId())) {
-            throw new IllegalArgumentException("You cannot purchase your own product");
+            throw new OwnProductPurchaseException("You cannot purchase your own product");
         }
     }
 }

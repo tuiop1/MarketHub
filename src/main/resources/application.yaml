@@ -58,7 +58,7 @@ jwt:
 app:
   admin:
     email: ${APP_ADMIN_EMAIL:admin@markethub.local}
-    password: ${APP_ADMIN_PASSWORD:admin12345}
+    password: ${APP_ADMIN_PASSWORD}
     first-name: admin
     last-name: admin
     birth-date: 1970-01-01

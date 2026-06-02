@@ -6,6 +6,7 @@ import com.tuiop.markethub.orders.enums.PaymentStatus;
 import com.tuiop.markethub.users.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ public class Order {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
    private  List<OrderItem> orderItems = new ArrayList<>();

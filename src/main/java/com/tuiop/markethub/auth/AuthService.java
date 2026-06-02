@@ -29,13 +29,14 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse authenticateUser(LoginRequest request) {
+        String email = request.email().trim().toLowerCase();
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.email(),
+                        email,
                         request.password()
                 )
         );
-        User user = userRepository.findByEmail(request.email()).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow();
         log.info("User logged in: userId={}",  user.getId());
         return new AuthResponse(jwtUtils.generateToken(user), "Bearer", jwtUtils.getExpirationSeconds());
     }

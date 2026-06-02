@@ -1,6 +1,7 @@
 package com.tuiop.markethub.security.user;
 
 
+import com.tuiop.markethub.users.AuthProvider;
 import com.tuiop.markethub.users.User;
 import com.tuiop.markethub.users.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: "+ email));
+
+        if (user.getAuthProvider() != AuthProvider.LOCAL) {
+            throw new UsernameNotFoundException("User does not use password login");
+        }
 
         return new CustomUserDetails(user);
     }
