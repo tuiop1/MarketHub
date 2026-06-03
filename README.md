@@ -1,6 +1,7 @@
 # MarketHub
 
 MarketHub is a Spring Boot backend for a marketplace-style application. It supports local and Google OAuth2 authentication, JWT-based API security, merchant onboarding, admin-managed categories and merchant verification, product management, product images stored in MinIO, shopping carts, checkout, order creation, Redis caching, Redis-backed rate limiting, PostgreSQL persistence, Liquibase migrations, Swagger/OpenAPI documentation, and Dockerized local development.
+
 ---
 
 ## Table of Contents
@@ -17,6 +18,7 @@ MarketHub is a Spring Boot backend for a marketplace-style application. It suppo
 - [API Endpoints](#api-endpoints)
 - [Environment Variables](#environment-variables)
 - [How to Run the Project](#how-to-run-the-project)
+- [Testing](#testing)
 - [Database Migrations](#database-migrations)
 - [Development Notes](#development-notes)
 
@@ -939,7 +941,7 @@ ADMIN role required
 ```
 
 | Method | Endpoint | Description |
-|---|---|---|
+|---|---|
 | GET | `/unverified` | Returns paginated unverified merchants |
 | PATCH | `/{merchantId}/verify` | Verifies a merchant |
 | PATCH | `/{merchantId}/disable` | Disables a merchant |
@@ -1221,6 +1223,30 @@ export SPRING_REDIS_PASSWORD=redis_password
 ```
 
 Make sure your local environment variables match `application.yaml`.
+
+---
+
+## Testing
+
+The project includes a representative automated test suite for core backend behavior.
+
+Current tests cover service-layer business logic, controller validation, repository persistence behavior, security configuration, JWT handling, and stock-consistency-related checks. The test suite uses JUnit 5, Mockito, AssertJ, Spring MockMvc, Spring Security Test, and an H2 in-memory database with the `test` profile.
+
+Main tested areas include:
+
+- authentication and registration flow
+- user repository persistence and unique email constraint
+- merchant creation and verification
+- product creation rules and repository locking metadata
+- cart quantity and stock validation
+- order purchase logic, duplicate item merging, stock reduction, and own-product purchase prevention
+- password encoding, authorization rules, and JWT utility behavior
+
+Run all tests:
+
+```bash
+./mvnw test
+```
 
 ---
 
