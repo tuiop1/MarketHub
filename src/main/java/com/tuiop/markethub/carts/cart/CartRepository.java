@@ -23,6 +23,16 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     """)
     Optional<Cart> findDetailedByUserIdForUpdate(@Param("userId") UUID userId);
 
+    @Query("""
+    select distinct c
+    from Cart c
+    join fetch c.user
+    left join fetch c.cartItems ci
+    left join fetch ci.product p
+    where c.user.id = :userId
+    """)
+    Optional<Cart> findDetailedByUserId(@Param("userId") UUID userId);
+
     boolean existsByUserId(UUID id);
 
     Optional<Cart> findByUserId(UUID userId);

@@ -72,7 +72,7 @@ services:
       APP_MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       APP_MINIO_BUCKET: ${APP_MINIO_BUCKET:-markethub-images}
 
-      REQUEST_LIMIT: ${REQUEST_LIMIT:-10}
+      REQUEST_LIMIT: ${REQUEST_LIMIT:-30}
       WINDOW_SIZE: ${WINDOW_SIZE:-1m}
 
 volumes:

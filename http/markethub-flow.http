@@ -1,0 +1,480 @@
+# MarketHub full working-flow requests
+# Run these from top to bottom with the JetBrains/IntelliJ HTTP Client.
+# If your .env overrides APP_ADMIN_EMAIL or APP_ADMIN_PASSWORD, update these variables.
+# The Docker profile defaults REQUEST_LIMIT to 10/min; raise it while running the full flow,
+# or wait for the rate-limit window between batches.
+#
+# Google OAuth2 is a browser redirect flow, so it cannot be completed by this
+# HTTP Client file like the JSON login/register requests below.
+# To try it locally, open this URL in your browser:
+#   http://localhost:8080/oauth2/authorization/google
+
+
+@host = http://localhost:8080
+@adminEmail = admin@markethub.local
+@adminPassword = admin12345
+@merchantPassword = merchantPass123
+@buyerPassword = buyerPass123
+
+### 00. Public smoke check
+GET {{host}}/api/v1/products?page=0&size=1
+Accept: application/json
+
+> {%
+client.test("Public API is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 01. Admin login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+> {%
+client.test("Admin login succeeded", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.token, "Missing admin token");
+});
+client.global.set("adminToken", response.body.token);
+%}
+
+### 02. Create category as admin
+POST {{host}}/api/v1/admin/categories
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "HTTP Flow Electronics {{$timestamp}}",
+  "description": "Category created by http/markethub-flow.http"
+}
+
+> {%
+client.test("Category created", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing category id");
+});
+client.global.set("categoryId", response.body.id);
+%}
+
+### 03. Update category as admin
+PUT {{host}}/api/v1/admin/categories/{{categoryId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "HTTP Flow Consumer Electronics {{$timestamp}}",
+  "description": "Updated category created by http/markethub-flow.http"
+}
+
+> {%
+client.test("Category updated", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 04. Public active categories
+GET {{host}}/api/v1/categories?page=0&size=10&sort=createdAt,desc
+Accept: application/json
+
+> {%
+client.test("Public categories are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 05. Public category by id
+GET {{host}}/api/v1/categories/{{categoryId}}
+Accept: application/json
+
+> {%
+client.test("Public category is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 06. Register merchant user
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "Mira",
+  "lastName": "Merchant",
+  "birthDate": "1994-04-14",
+  "email": "merchant-{{$timestamp}}@markethub.test",
+  "password": "{{merchantPassword}}"
+}
+
+> {%
+client.test("Merchant user registered", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.token, "Missing merchant token");
+});
+client.global.set("merchantToken", response.body.token);
+%}
+
+### 07. Create merchant profile
+POST {{host}}/api/v1/merchants/me
+Authorization: Bearer {{merchantToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "shopName": "HTTP Flow Shop {{$timestamp}}",
+  "description": "Merchant profile created by http/markethub-flow.http"
+}
+
+> {%
+client.test("Merchant profile created", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing merchant id");
+});
+client.global.set("merchantId", response.body.id);
+%}
+
+### 08. Admin list unverified merchants
+GET {{host}}/api/v1/admin/merchants/unverified?page=0&size=10&sort=createdAt,desc
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Unverified merchants are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 09. Admin verify merchant
+PATCH {{host}}/api/v1/admin/merchants/{{merchantId}}/verify
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant verified", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.verified === true, "Merchant should be verified");
+});
+%}
+
+### 10. Merchant gets own profile
+GET {{host}}/api/v1/merchants/me
+Authorization: Bearer {{merchantToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant profile is available", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 11. Public verified merchants
+GET {{host}}/api/v1/merchants?page=0&size=10&sort=createdAt,desc
+Accept: application/json
+
+> {%
+client.test("Public merchants are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 12. Merchant creates product
+POST {{host}}/api/v1/merchant/products
+Authorization: Bearer {{merchantToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "HTTP Flow Mechanical Keyboard",
+  "description": "A product created by http/markethub-flow.http",
+  "priceCents": 7999,
+  "stockQuantity": 10,
+  "categoryId": "{{categoryId}}"
+}
+
+> {%
+client.test("Product created", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing product id");
+});
+client.global.set("productId", response.body.id);
+%}
+
+### 13. Merchant lists own products
+GET {{host}}/api/v1/merchant/products?page=0&size=10&sort=createdAt,desc
+Authorization: Bearer {{merchantToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant products are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 14. Merchant gets own product by id
+GET {{host}}/api/v1/merchant/products/{{productId}}
+Authorization: Bearer {{merchantToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant product is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 15. Upload product image
+POST {{host}}/api/v1/products/{{productId}}/images?position=1
+Authorization: Bearer {{merchantToken}}
+Content-Type: multipart/form-data; boundary=MarketHubBoundary
+Accept: application/json
+
+--MarketHubBoundary
+Content-Disposition: form-data; name="image"; filename="sample-product.png"
+Content-Type: image/png
+
+< ./sample-product.png
+--MarketHubBoundary--
+
+> {%
+client.test("Product image uploaded", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing image id");
+});
+client.global.set("imageId", response.body.id);
+%}
+
+### 16. Public product list
+GET {{host}}/api/v1/products?page=0&size=10&sort=createdAt,desc
+Accept: application/json
+
+> {%
+client.test("Public products are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 17. Public product by id
+GET {{host}}/api/v1/products/{{productId}}
+Accept: application/json
+
+> {%
+client.test("Public product is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 18. Public product image content
+GET {{host}}/api/v1/product-images/{{imageId}}/content
+Accept: image/png
+
+> {%
+client.test("Product image content is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 19. Register buyer user
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "Ben",
+  "lastName": "Buyer",
+  "birthDate": "1996-08-20",
+  "email": "buyer-{{$timestamp}}@markethub.test",
+  "password": "{{buyerPassword}}"
+}
+
+> {%
+client.test("Buyer registered", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.token, "Missing buyer token");
+});
+client.global.set("buyerToken", response.body.token);
+%}
+
+### 20. Buyer direct purchase
+POST {{host}}/api/v1/orders/purchase
+Authorization: Bearer {{buyerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "items": [
+    {
+      "productId": "{{productId}}",
+      "quantity": 2
+    }
+  ]
+}
+
+> {%
+client.test("Direct purchase created", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing order id");
+});
+client.global.set("directOrderId", response.body.id);
+%}
+
+### 21. Buyer orders after direct purchase
+GET {{host}}/api/v1/orders/me?page=0&size=10&sort=createdAt,desc
+Authorization: Bearer {{buyerToken}}
+Accept: application/json
+
+> {%
+client.test("Buyer orders are reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 22. Buyer adds product to cart
+POST {{host}}/api/v1/cart/items
+Authorization: Bearer {{buyerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productId": "{{productId}}",
+  "quantity": 1
+}
+
+> {%
+client.test("Cart item added", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.id, "Missing cart item id");
+});
+client.global.set("cartItemId", response.body.id);
+%}
+
+### 23. Buyer gets cart
+GET {{host}}/api/v1/cart
+Authorization: Bearer {{buyerToken}}
+Accept: application/json
+
+> {%
+client.test("Cart is reachable", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 24. Buyer purchases cart
+POST {{host}}/api/v1/cart/purchase
+Authorization: Bearer {{buyerToken}}
+Accept: application/json
+
+> {%
+client.test("Cart purchase created", function () {
+  client.assert(response.status === 201, "Expected 201");
+  client.assert(response.body.id, "Missing cart order id");
+});
+client.global.set("cartOrderId", response.body.id);
+%}
+
+### 25. Buyer orders after cart purchase
+GET {{host}}/api/v1/orders/me?page=0&size=10&sort=createdAt,desc
+Authorization: Bearer {{buyerToken}}
+Accept: application/json
+
+> {%
+client.test("Buyer orders include purchases", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 26. Merchant updates product after sales
+PUT {{host}}/api/v1/merchant/products/{{productId}}
+Authorization: Bearer {{merchantToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "HTTP Flow Mechanical Keyboard Pro",
+  "description": "Updated product created by http/markethub-flow.http",
+  "priceCents": 8999,
+  "stockQuantity": 7,
+  "categoryId": "{{categoryId}}",
+  "active": true
+}
+
+> {%
+client.test("Product updated", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 27. Delete product image
+DELETE {{host}}/api/v1/products/{{productId}}/images/{{imageId}}
+Authorization: Bearer {{merchantToken}}
+Accept: application/json
+
+> {%
+client.test("Product image deleted", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 28. Merchant deactivates product
+DELETE {{host}}/api/v1/merchant/products/{{productId}}
+Authorization: Bearer {{merchantToken}}
+Accept: application/json
+
+> {%
+client.test("Product deactivated", function () {
+  client.assert(response.status === 200, "Expected 200");
+});
+%}
+
+### 29. Admin disables merchant
+PATCH {{host}}/api/v1/admin/merchants/{{merchantId}}/disable
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant disabled", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.active === false, "Merchant should be disabled");
+});
+%}
+
+### 30. Admin enables merchant
+PATCH {{host}}/api/v1/admin/merchants/{{merchantId}}/enable
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Merchant enabled", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.active === true, "Merchant should be enabled");
+});
+%}
+
+### 31. Admin disables category
+PATCH {{host}}/api/v1/admin/categories/{{categoryId}}/disable
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Category disabled", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.active === false, "Category should be disabled");
+});
+%}
+
+### 32. Admin enables category
+PATCH {{host}}/api/v1/admin/categories/{{categoryId}}/enable
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+> {%
+client.test("Category enabled", function () {
+  client.assert(response.status === 200, "Expected 200");
+  client.assert(response.body.active === true, "Category should be enabled");
+});
+%}

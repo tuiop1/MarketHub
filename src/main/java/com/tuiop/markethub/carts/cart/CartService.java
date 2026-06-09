@@ -69,7 +69,7 @@ public class CartService {
     @Transactional(readOnly = true)
     public CartResponse getMyCart(CustomUserDetails principal) {
 
-        Cart myCart = cartRepository.findDetailedByUserIdForUpdate(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", principal.getUserId()));
+        Cart myCart = cartRepository.findDetailedByUserId(principal.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Cart.class, "user.id", principal.getUserId()));
 
         return cartMapper.toCartResponse(myCart);
     }
